@@ -1,0 +1,353 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: AssetMerge 0.2.0\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "Asset Merge"
+msgstr "资产合并"
+
+msgid "Asset Merge — configuration"
+msgstr "资产合并 — 配置"
+
+msgid "Asset merge — preview (read-only)"
+msgstr "资产合并 — 预演（只读）"
+
+msgid "Asset merge — preview report"
+msgstr "资产合并 — 预演报告"
+
+msgid "Current release is P1+P2: plugin skeleton and read-only preview engine. No merge execution is implemented."
+msgstr "当前版本为 P1+P2：插件骨架与只读预演引擎。未实现合并执行。"
+
+msgid "Execution engine (P3) is enabled. Preview first, then execute from the report page."
+msgstr "执行引擎（P3）已启用。请先预演，再从报告页执行。"
+
+msgid "Setting"
+msgstr "设置"
+
+msgid "Value"
+msgstr "值"
+
+msgid "Description"
+msgstr "说明"
+
+msgid "Audit log retention in days"
+msgstr "审计日志保留天数"
+
+msgid "Field conflicts require manual decision"
+msgstr "字段冲突需人工裁决"
+
+msgid "Lock manually transferred fields against inventory overwrite"
+msgstr "锁定手工转移字段以防盘点覆盖"
+
+msgid "Select at least two computers to preview a merge."
+msgstr "请至少选择两台计算机以预演合并。"
+
+msgid "Choose the record to KEEP. It must be the agent-created (dynamic) record with the agent binding; otherwise the preview will reject the selection."
+msgstr "请选择要保留的记录。必须是 agent 创建的动态记录且带 agent 绑定，否则预演会拒绝该选择。"
+
+msgid "Record to keep (target)"
+msgstr "要保留的记录（目标）"
+
+msgid "No target record selected."
+msgstr "未选择目标记录。"
+
+msgid "No source records selected."
+msgstr "未选择源记录。"
+
+msgid "A record cannot be both target and source."
+msgstr "同一记录不能同时作为目标和源。"
+
+msgid "Target computer #%d not found."
+msgstr "未找到目标计算机 #%d。"
+
+msgid "Source computer #%d not found."
+msgstr "未找到源计算机 #%d。"
+
+msgid "Target #%d is not dynamic (is_dynamic=0). Keeping it would cause the agent to create a third record. Choose the agent-created record as target."
+msgstr "目标 #%d 不是动态记录（is_dynamic=0）。保留它将导致 agent 创建第三条记录。请选择 agent 创建的记录作为目标。"
+
+msgid "Target #%d has no agent binding. Choose the agent-created record as target."
+msgstr "目标 #%d 没有 agent 绑定。请选择 agent 创建的记录作为目标。"
+
+msgid "Source #%d is in a different entity than target #%d. Cross-entity merge is not allowed."
+msgstr "源 #%d 与目标 #%d 不在同一实体。不允许跨实体合并。"
+
+msgid "Source #%d has %d agent binding(s). Merging would orphan them; verify before executing."
+msgstr "源 #%d 有 %d 个 agent 绑定。合并后将孤立这些绑定；执行前请核实。"
+
+msgid "MANUAL DECISION REQUIRED"
+msgstr "需人工裁决"
+
+msgid "none"
+msgstr "无"
+
+msgid "(blank)"
+msgstr "（空）"
+
+msgid "Preview generated. Opening the read-only report…"
+msgstr "预演已生成。正在打开只读报告…"
+
+msgid "READ-ONLY PREVIEW"
+msgstr "只读预演"
+
+msgid "This release does not execute merges. No GLPI data was modified. The report below only shows what a future merge would do."
+msgstr "当前版本不执行合并，未修改任何 GLPI 数据。以下报告仅展示未来合并将执行的操作。"
+
+msgid "No preview available. Select computers in the computer list and choose the “Asset merge — preview (read-only)” massive action."
+msgstr "暂无预演报告。请在计算机列表中选择计算机，然后执行“资产合并 — 预演（只读）”批量操作。"
+
+msgid "Generated at %s by %s"
+msgstr "生成于 %s，操作人 %s"
+
+msgid "Summary"
+msgstr "摘要"
+
+msgid "Source records to soft-delete"
+msgstr "将软删除的源记录数"
+
+msgid "Relation rows to move"
+msgstr "将迁移的关联行数"
+
+msgid "Field conflicts needing manual decision"
+msgstr "需人工裁决的字段冲突数"
+
+msgid "Manual fields to lock after merge"
+msgstr "合并后需锁定的人工字段数"
+
+msgid "Manual decision required"
+msgstr "是否需要人工裁决"
+
+msgid "Yes"
+msgstr "是"
+
+msgid "No"
+msgstr "否"
+
+msgid "Records"
+msgstr "记录"
+
+msgid "Role"
+msgstr "角色"
+
+msgid "Name"
+msgstr "名称"
+
+msgid "Serial"
+msgstr "序列号"
+
+msgid "Asset number"
+msgstr "资产编号"
+
+msgid "Dynamic"
+msgstr "动态"
+
+msgid "Agents"
+msgstr "Agent 数量"
+
+msgid "KEEP (target)"
+msgstr "保留（目标）"
+
+msgid "SOFT-DELETE (source)"
+msgstr "软删除（源）"
+
+msgid "Field conflicts and proposed resolution"
+msgstr "字段冲突与建议处置"
+
+msgid "Target value"
+msgstr "目标值"
+
+msgid "Source value"
+msgstr "源值"
+
+msgid "Policy"
+msgstr "策略"
+
+msgid "Proposed resolution"
+msgstr "建议处置"
+
+msgid "Lock"
+msgstr "锁定"
+
+msgid "Reason"
+msgstr "原因"
+
+msgid "Fields marked “MANUAL DECISION REQUIRED” must be adjudicated by an operator before any future merge is executed."
+msgstr "标记为“需人工裁决”的字段必须在未来执行合并前由操作员裁决。"
+
+msgid "Relations to move"
+msgstr "待迁移的关联"
+
+msgid "Class"
+msgstr "类"
+
+msgid "Table"
+msgstr "表"
+
+msgid "Target rows"
+msgstr "目标行数"
+
+msgid "Source rows"
+msgstr "源行数"
+
+msgid "Status"
+msgstr "状态"
+
+msgid "Note"
+msgstr "说明"
+
+msgid "Manual fields to lock after a future merge"
+msgstr "未来合并后需锁定的人工字段"
+
+msgid "Locking prevents the next agent inventory from overwriting manually transferred values (e.g. fixed asset number)."
+msgstr "锁定可防止下一次 agent 盘点覆盖手工转移的值（例如固定资产编号）。"
+
+msgid "Execute merge"
+msgstr "执行合并"
+
+msgid "DESTRUCTIVE ACTION"
+msgstr "危险操作"
+
+msgid "The source records will be moved to the trash and their relations transferred. This is executed inside a transaction and is fully audited."
+msgstr "源记录将被移入回收站，其关联数据将被迁移。此操作在事务内执行并完整留痕。"
+
+msgid "I have reviewed the preview and confirm the merge."
+msgstr "我已审阅预演报告并确认执行合并。"
+
+msgid "Execute Merge (P3)"
+msgstr "执行合并（P3）"
+
+msgid "Review and execute merge"
+msgstr "审阅并执行合并"
+
+msgid "Asset merge — execute"
+msgstr "资产合并 — 执行"
+
+msgid "Asset merge — execute (P3)"
+msgstr "资产合并 — 执行（P3）"
+
+msgid "You do not have the rights required to merge assets."
+msgstr "您没有合并资产所需的权限。"
+
+msgid "Invalid target or source selection."
+msgstr "目标或源选择无效。"
+
+msgid "Back to computers"
+msgstr "返回计算机列表"
+
+msgid "Merge aborted. No data was modified."
+msgstr "合并已中止，未修改任何数据。"
+
+msgid "CONFIRMATION REQUIRED"
+msgstr "需要确认"
+
+msgid "Review the plan below. Execution moves relations, transfers fields, applies locks and soft-deletes the source records."
+msgstr "请审阅以下计划。执行将迁移关联、转移字段、加锁并软删除源记录。"
+
+msgid "Field transfer plan"
+msgstr "字段转移计划"
+
+msgid "Manual fields to lock"
+msgstr "需锁定的人工字段"
+
+msgid "I confirm execution of this merge."
+msgstr "我确认执行此次合并。"
+
+msgid "Execute Merge"
+msgstr "执行合并"
+
+msgid "Cancel"
+msgstr "取消"
+
+msgid "Confirmation checkbox not checked."
+msgstr "未勾选确认框。"
+
+msgid "Merge completed successfully."
+msgstr "合并执行成功。"
+
+msgid "Execution statistics"
+msgstr "执行统计"
+
+msgid "Merge failed (rolled back)."
+msgstr "合并失败（已回滚）。"
+
+msgid "Another merge is in progress on one of these records. Try again later."
+msgstr "这些记录中有正在进行的合并，请稍后重试。"
+
+msgid "Preview report is not OK; refusing to merge."
+msgstr "预演报告未通过，拒绝合并。"
+
+msgid "Field %s requires manual decision before execution."
+msgstr "字段 %s 在执行前需人工裁决。"
+
+msgid "Merge failed and was rolled back: %s"
+msgstr "合并失败并已回滚：%s"
+
+# --- Optional override feature (states/users/groups) ---
+msgid "Optional overrides (operator choice)"
+msgstr "可选覆盖（操作员选择）"
+
+msgid "By default the target (agent) values are kept. Tick a box to replace them with the source record values. Ticked scalar fields are locked against future inventory updates."
+msgstr "默认保留目标（Agent）记录的值。勾选后用源记录的值替换。勾选的标量字段将被锁定，防止后续盘点覆盖。"
+
+msgid "Select"
+msgstr "选择"
+
+msgid "Field"
+msgstr "字段"
+
+msgid "Keep — target"
+msgstr "保留 — 目标"
+
+msgid "Override with — source"
+msgstr "覆盖为 — 源"
+
+msgid "Lock after override"
+msgstr "覆盖后锁定"
+
+msgid "N/A (relation)"
+msgstr "不适用（关联）"
+
+msgid "Status"
+msgstr "状态"
+
+msgid "User"
+msgstr "使用人"
+
+msgid "Group"
+msgstr "群组"
+
+msgid "Owner"
+msgstr "拥有者"
+
+msgid "Tech"
+msgstr "技术"
+
+msgid "Ignored unsupported override field: %s"
+msgstr "已忽略不支持的覆盖字段：%s"
+
+msgid "At least one source record is required in addition to the target."
+msgstr "除目标记录外，至少还需要一条源记录。"
+
+msgid "Target #%d no longer exists."
+msgstr "目标 #%d 已不存在。"
+
+msgid "Target #%d is not dynamic."
+msgstr "目标 #%d 不是动态记录。"
+
+msgid "Target #%d is in the trash."
+msgstr "目标 #%d 已在回收站中。"
+
+msgid "Target #%d has no agent binding."
+msgstr "目标 #%d 没有 Agent 绑定。"
+
+msgid "Source #%d no longer exists."
+msgstr "源 #%d 已不存在。"
+
+msgid "Source #%d is in a different entity."
+msgstr "源 #%d 与目标不在同一实体。"
+
+msgid "Source #%d is already in the trash."
+msgstr "源 #%d 已在回收站中。"
