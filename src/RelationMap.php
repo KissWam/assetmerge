@@ -82,6 +82,54 @@ final class RelationMap
     }
 
     /**
+     * Tables populated by the GLPI inventory agent (hardware / software snapshot).
+     *
+     * In a replacement-UUID merge the SOURCE is a stale hardware snapshot while
+     * the TARGET keeps the live agent. Moving these rows to the target creates
+     * two sets of OS / components / disks / software and is NEVER correct: the
+     * active agent already owns the authoritative inventory. They are skipped
+     * whenever the source has an agent binding.
+     *
+     * Manual / administrative relations (ITIL, contracts, documents, groups,
+     * infocom, notepads, ... ) are NOT in this list and are always moved.
+     *
+     * @return array<int,string>
+     */
+    public static function inventoryTables(): array
+    {
+        return [
+            'glpi_items_operatingsystems',
+            'glpi_items_devicebatteries',
+            'glpi_items_devicecameras',
+            'glpi_items_devicecases',
+            'glpi_items_devicecontrols',
+            'glpi_items_devicedrives',
+            'glpi_items_devicefirmwares',
+            'glpi_items_devicegenerics',
+            'glpi_items_devicegraphiccards',
+            'glpi_items_deviceharddrives',
+            'glpi_items_devicememories',
+            'glpi_items_devicemotherboards',
+            'glpi_items_devicenetworkcards',
+            'glpi_items_devicepcis',
+            'glpi_items_devicepowersupplies',
+            'glpi_items_deviceprocessors',
+            'glpi_items_devicesensors',
+            'glpi_items_devicesimcards',
+            'glpi_items_devicesoundcards',
+            'glpi_items_disks',
+            'glpi_items_processes',
+            'glpi_items_environments',
+            'glpi_items_softwareversions',
+            'glpi_networkports',
+            'glpi_itemantiviruses',
+            'glpi_itemvirtualmachines',
+            'glpi_items_remotemanagements',
+            'glpi_databaseinstances',
+        ];
+    }
+
+    /**
      * Field conflict policy (user decision: manual adjudication after preview).
      *
      * Each entry:

@@ -351,3 +351,18 @@ msgstr "源 #%d 与目标不在同一实体。"
 
 msgid "Source #%d is already in the trash."
 msgstr "源 #%d 已在回收站中。"
+
+msgid "Source #%d has a newer active agent (%s) than target #%d (%s). Likely a replacement-UUID duplicate: choose the actively reporting record as TARGET and the stale one as source, then re-run preview."
+msgstr "源 #%d 的活跃 Agent（%s）比目标 #%d（%s）更新。这可能是更换硬件产生的新 UUID 重复记录：请把仍在正常上报的记录作为【目标】，旧的作为【源】，然后重新预演。"
+
+msgid "Source #%d has %d stale agent binding(s). They will be unbound (set to no computer); target #%d keeps its single agent. Verify the source agent is no longer reporting."
+msgstr "源 #%d 有 %d 个过期 Agent 绑定，将被解绑（设为无资产）；目标 #%d 保留其唯一的 Agent。请确认该源 Agent 已停止上报。"
+
+msgid "Source #%d has %d stale agent binding(s) that will be unbound (target keeps its single agent)."
+msgstr "源 #%d 的 %d 个过期 Agent 绑定将被解绑（目标保留其唯一 Agent）。"
+
+msgid "Inventory snapshot from stale source: NOT moved; target agent is authoritative."
+msgstr "来自过期源的资产快照：不搬移；以目标的活跃 Agent 数据为准。"
+
+msgid "Source #%d has a newer active agent (%s) than target #%d. Wrong direction for a replacement-UUID merge; make the active record the target."
+msgstr "源 #%d 的活跃 Agent（%s）比目标 #%d 更新。更换 UUID 类合并的方向错误，请把活跃记录作为目标。"

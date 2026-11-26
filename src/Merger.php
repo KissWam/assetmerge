@@ -179,6 +179,7 @@ final class Merger
         if ($this->countAgents($targetId) === 0) {
             $out['errors'][] = sprintf(__('Target #%d has no agent binding.', 'assetmerge'), $targetId);
         }
+        $targetLatest = $this->latestAgentContact($targetId) ?? '';
 
         foreach ($sourceIds as $sid) {
             $src = $this->fetchComputer($sid);
@@ -194,11 +195,35 @@ final class Merger
             }
             $sa = $this->countAgents($sid);
             if ($sa > 0) {
-                $out['warnings'][] = sprintf(__('Source #%d has %d agent binding(s).', 'assetmerge'), $sid, $sa);
+                $srcLatest = $this->latestAgentContact($sid) ?? '';
+                if ($srcLatest !== '' && strcmp($srcLatest, $targetLatest) > 0) {
+                    $out['errors'][] = sprintf(
+                        __('Source #%d has a newer active agent (%s) than target #%d. Wrong direction for a replacement-UUID merge; make the active record the target.', 'assetmerge'),
+                        $sid, $srcLatest, $targetId
+                    );
+                } else {
+                    $out['warnings'][] = sprintf(__('Source #%d has %d stale agent binding(s) that will be unbound (target keeps its single agent).', 'assetmerge'), $sid, $sa);
+                }
             }
         }
 
         return $out;
+    }
+
+    /** @return string|null most recent last_contact among this computer's agents */
+    private function latestAgentContact(int $computerId): ?string
+    {
+        $latest = null;
+        foreach ($this->db->request([
+            'FROM'  => 'glpi_agents',
+            'WHERE' => ['itemtype' => 'Computer', 'items_id' => $computerId],
+        ]) as $row) {
+            $lc = $row['last_contact'] ?? null;
+            if ($lc !== null && $lc !== '' && ($latest === null || strcmp((string)$lc, $latest) > 0)) {
+                $latest = (string)$lc;
+            }
+        }
+        return $latest;
     }
 
     /**
@@ -420,7 +445,7 @@ final class Merger
     /**
      * Move relation rows from every source to the target.
      *
-     * - skips glpi_agents (target already owns the binding)
+     * - unbinds stale source agents (target keeps its single live agent)
      * - adds itemtype='Computer' filter for the 45 tables that have it
      * - dedupes rows that would violate a unicity key on the target
      */
@@ -429,18 +454,66 @@ final class Merger
         $moved = 0;
         $deduped = 0;
         $skipped = 0;
+        $inventorySkipped = 0;
+
+        // Replacement-UUID case: a source that has its own agent is a stale
+        // hardware snapshot. Moving its inventory (OS/components/disks/software)
+        // onto the live target produces two sets of every component with
+        // outdated values. Skip those tables entirely; the target's active
+        // agent is the authoritative inventory. Manual/admin relations still
+        // move (see RelationMap::inventoryTables() for the exact scope).
+        $sourceHasAgent = false;
+        foreach ($sourceIds as $sidProbe) {
+            if ($this->countAgents($sidProbe) > 0) {
+                $sourceHasAgent = true;
+                break;
+            }
+        }
+        $inventoryTables = $sourceHasAgent ? array_flip(RelationMap::inventoryTables()) : [];
 
         foreach (RelationMap::relations() as $rel) {
             $table = $rel['table'];
             $col   = $rel['where'];
 
-            // Agent binding: never move; target must remain the single owner.
-            if ($table === 'glpi_agents') {
+            if (!$this->db->tableExists($table) || !$this->db->fieldExists($table, $col)) {
                 $skipped++;
                 continue;
             }
-            if (!$this->db->tableExists($table) || !$this->db->fieldExists($table, $col)) {
-                $skipped++;
+
+            if (isset($inventoryTables[$table])) {
+                // Count the rows we deliberately do not move, for the report.
+                foreach ($sourceIds as $sidInv) {
+                    $iw = [$col => $sidInv];
+                    if ($this->db->fieldExists($table, 'itemtype')) {
+                        $iw['itemtype'] = 'Computer';
+                    }
+                    foreach ($this->db->request(['COUNT' => 'c', 'FROM' => $table, 'WHERE' => $iw]) as $ir) {
+                        $inventorySkipped += (int)$ir['c'];
+                    }
+                }
+                continue;
+            }
+
+            // Agent bindings: UNBIND from the source, never re-point to target.
+            // The target must own exactly ONE agent: GLPI core
+            // (Agent::getFromDBByCrit) and glpiinventory (isDeployEnabled) assume
+            // uniqueness and throw when a computer has 2 agents, which crashes
+            // computer.form.php. validate() already guarantees the target holds
+            // the newest active agent, so any source agent is stale (old UUID)
+            // and must be detached (items_id=0), not duplicated on the target.
+            if ($table === 'glpi_agents') {
+                foreach ($sourceIds as $sid) {
+                    $where = ['itemtype' => 'Computer', 'items_id' => $sid];
+                    $agents = [];
+                    foreach ($this->db->request(['FROM' => $table, 'WHERE' => $where]) as $arow) {
+                        $agents[] = $arow;
+                    }
+                    foreach ($agents as $arow) {
+                        $this->db->update($table, ['items_id' => 0], ['id' => (int)$arow['id']]);
+                        $moved++;
+                        $this->counters['agents_unbound'] = ($this->counters['agents_unbound'] ?? 0) + 1;
+                    }
+                }
                 continue;
             }
 
@@ -477,11 +550,15 @@ final class Merger
                         $deduped++;
                         continue;
                     }
-                    $this->db->update(
-                        $table,
-                        [$col => $targetId, 'date_mod' => date('Y-m-d H:i:s')],
-                        ['id' => (int)$row['id']]
-                    );
+                    // GLPI 12 removed date_mod from all items_device* link
+                    // tables (and glpi_groups_items). Writing it unconditionally
+                    // aborts the whole transaction with SQLSTATE 42S22. Build
+                    // the SET clause defensively from the live schema.
+                    $set = [$col => $targetId];
+                    if ($this->db->fieldExists($table, 'date_mod')) {
+                        $set['date_mod'] = date('Y-m-d H:i:s');
+                    }
+                    $this->db->update($table, $set, ['id' => (int)$row['id']]);
                     $moved++;
                 }
             }
@@ -490,6 +567,9 @@ final class Merger
         $this->counters['relations_moved']  = $moved;
         $this->counters['relations_deduped'] = $deduped;
         $this->counters['relations_skipped'] = $skipped;
+        if ($sourceHasAgent) {
+            $this->counters['inventory_rows_not_moved'] = $inventorySkipped;
+        }
     }
 
     /**

@@ -78,6 +78,7 @@ final class PreviewEngine
 
         // Gate 2: target must own the agent binding.
         $targetAgents = $this->countAgents($targetId);
+        $targetLatest = $this->latestAgentContact($targetId) ?? '';
         if ($targetAgents === 0) {
             $report['errors'][] = sprintf(
                 __('Target #%d has no agent binding. Choose the agent-created record as target.', 'assetmerge'),
@@ -112,11 +113,28 @@ final class PreviewEngine
             }
             $srcAgents = $this->countAgents($sid);
             if ($srcAgents > 0) {
-                $report['warnings'][] = sprintf(
-                    __('Source #%d has %d agent binding(s). Merging would orphan them; verify before executing.', 'assetmerge'),
-                    $sid,
-                    $srcAgents
-                );
+                $srcLatest = $this->latestAgentContact($sid) ?? '';
+                // Replacement-hardware / new-UUID case: if the SOURCE holds a
+                // more recently active agent than the target, the operator has
+                // picked the wrong direction. Merging would orphan the live
+                // agent, which reports again and recreates a third record.
+                if ($srcLatest !== '' && strcmp($srcLatest, $targetLatest) > 0) {
+                    $report['errors'][] = sprintf(
+                        __('Source #%d has a newer active agent (%s) than target #%d (%s). Likely a replacement-UUID duplicate: choose the actively reporting record as TARGET and the stale one as source, then re-run preview.', 'assetmerge'),
+                        $sid,
+                        $srcLatest,
+                        $targetId,
+                        $targetLatest !== '' ? $targetLatest : __('none', 'assetmerge')
+                    );
+                    $report['ok'] = false;
+                } else {
+                    $report['warnings'][] = sprintf(
+                        __('Source #%d has %d stale agent binding(s). They will be unbound (set to no computer); target #%d keeps its single agent. Verify the source agent is no longer reporting.', 'assetmerge'),
+                        $sid,
+                        $srcAgents,
+                        $targetId
+                    );
+                }
             }
             $report['sources'][] = [
                 'id'          => $sid,
@@ -139,6 +157,7 @@ final class PreviewEngine
 
         $relationRows = 0;
         foreach ($report['relations'] as $rel) {
+            // Only rows that will actually be moved count toward the total.
             if ($rel['status'] === 'ok') {
                 $relationRows += (int)$rel['source_count'];
             }
@@ -187,6 +206,25 @@ final class PreviewEngine
             return (int)$row['c'];
         }
         return 0;
+    }
+
+    /**
+     * @param int $computerId
+     * @return string|null most recent last_contact of this computer's agents
+     */
+    private function latestAgentContact(int $computerId): ?string
+    {
+        $latest = null;
+        foreach ($this->db->request([
+            'FROM'  => 'glpi_agents',
+            'WHERE' => ['itemtype' => 'Computer', 'items_id' => $computerId],
+        ]) as $row) {
+            $lc = $row['last_contact'] ?? null;
+            if ($lc !== null && $lc !== '' && ($latest === null || strcmp((string)$lc, $latest) > 0)) {
+                $latest = (string)$lc;
+            }
+        }
+        return $latest;
     }
 
     /**
@@ -360,16 +398,31 @@ final class PreviewEngine
     private function buildRelationCounts(int $targetId, array $sourceIds): array
     {
         $out = [];
+        // Sources with their own agent are stale hardware snapshots: their
+        // inventory rows must NOT be moved to the live target (see
+        // RelationMap::inventoryTables()). Mark them in the report.
+        $sourceHasAgent = false;
+        foreach ($sourceIds as $sidProbe) {
+            if ($this->countAgents($sidProbe) > 0) {
+                $sourceHasAgent = true;
+                break;
+            }
+        }
+        $inventoryTables = $sourceHasAgent ? array_flip(RelationMap::inventoryTables()) : [];
+
         foreach (RelationMap::relations() as $rel) {
             $table = $rel['table'];
             $col   = $rel['where'];
+            $isInventory = isset($inventoryTables[$table]);
             $entry = [
                 'class'        => $rel['class'],
                 'table'        => $table,
                 'target_count' => 0,
                 'source_count' => 0,
-                'status'       => 'ok',
-                'note'         => $rel['note'],
+                'status'       => $isInventory ? 'skipped_inventory' : 'ok',
+                'note'         => $isInventory
+                    ? __('Inventory snapshot from stale source: NOT moved; target agent is authoritative.', 'assetmerge')
+                    : $rel['note'],
             ];
 
             if (!$this->tableExists($table)) {

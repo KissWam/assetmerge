@@ -7,6 +7,13 @@
 - 哨兵值 `otherserial = 'No Asset Information'` 视为无信息占位，可被真实值覆盖
 - 测试环境预演与执行引擎验证通过
 
+### 2026-11-26 修复批次（沿用 0.2.0，不升版本号）
+- 兼容 GLPI 12：关联表写入前检测 `date_mod` 列，避免在已移除该列的 `items_device*` / `glpi_groups_items` 表上导致事务回滚
+- 换硬件 / 新 UUID 场景：预演与执行阶段增加合并方向护栏，源记录 Agent 更新时直接拒绝，防止把活跃记录并入过期记录后再次产生第三条记录
+- Agent 唯一性：源 Agent 改为解绑（`items_id=0`）而非重指向，避免一台电脑绑定两个 Agent 导致详情页异常
+- 过期源的 inventory 快照（OS / 组件 / 磁盘 / 软件等 28 张表）不再搬移，仅迁移人工关联；预演报告以 `skipped_inventory` 标注并输出 `inventory_rows_not_moved` 计数
+- 中文语言包补充 5 条报告文案，移除 2 条废弃文案并重编译 `.mo`
+
 ## [0.1.0] - 2026-11
 - 插件骨架：Massive Action 入口、配置页、命名空间自动加载
 - 只读预演引擎（`PreviewEngine.php`）：逐字段差异报告，冲突标注人工裁决
